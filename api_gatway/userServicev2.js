@@ -58,17 +58,6 @@ app.post('/api/users', async (req, res) => {
     }
 });
 
-//bulk insert
-app.post('/api/users/bulk', async (req, res) => {
-    try {
-        const usersData = req.body; // Expecting an array of user objects
-        const result = await User.insertMany(usersData);
-        res.status(201).json(result);
-    } catch (error) {
-        res.status(400).json({ message: 'Failed to insert users', error: error.message });
-    }
-});
-
 
 // Route to update user email or delivery address
 app.put('/api/users/:userId', async (req, res) => {

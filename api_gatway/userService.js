@@ -11,14 +11,10 @@ let channel;
 app.use(bodyParser.json());
 
 // Define a user schema and model
-const addressSchema=new mongoose.Schema({
-    city:{type:String, required:true},
-    province:{type:String, required:true}
-});
 const userSchema = new mongoose.Schema({
-    userId: {type:String, required:true, unique:true},
-    email: {type:String, required:true, unique:true},
-    deliveryAddress:{type:addressSchema, required:true}
+    userId: { type: String, required: true, unique: true },
+    email: { type: String, required: true, unique: true },
+    deliveryAddress: { type: String, required: true }
 });
 const User = mongoose.model('User', userSchema);
 
@@ -27,21 +23,23 @@ async function connectRabbitMQ() {
     try {
         const connection = await amqp.connect('amqp://localhost');
         channel = await connection.createChannel();
-        await channel.assertQueue('user_updates');
+        await channel.assertQueue('user_updates', { durable: true });
         console.log('Connected to RabbitMQ');
     } catch (error) {
-        console.error('Failed to connect to RabbitMQ:', error);
+        console.error('Failed to connect to RabbitMQ:', error.message);
+        process.exit(1); // Exit if RabbitMQ connection fails
     }
 }
 
 // Connect to MongoDB
 async function connectMongoDB() {
     try {
-        const uri = 'mongodb+srv://singh:1721@cluster0.uuzh3.mongodb.net/myDatabase?retryWrites=true&w=majority';
+        const uri = 'mongodb+srv://singh:1721@cluster0.uuzh3.mongodb.net/UserDatabase?retryWrites=true&w=majority';
         await mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true });
         console.log('Connected to MongoDB Atlas');
     } catch (error) {
-        console.error('Failed to connect to MongoDB:', error);
+        console.error('Failed to connect to MongoDB:', error.message);
+        process.exit(1); // Exit if MongoDB connection fails
     }
 }
 
@@ -50,8 +48,10 @@ app.post('/api/users', async (req, res) => {
     try {
         const newUser = new User(req.body);
         await newUser.save();
+        console.log('User created successfully:', newUser);
         res.status(201).json(newUser);
     } catch (error) {
+        console.error('Error creating user:', error.message);
         res.status(500).json({ message: 'Failed to create user', error: error.message });
     }
 });
@@ -59,6 +59,8 @@ app.post('/api/users', async (req, res) => {
 // Route to update user email or delivery address
 app.put('/api/users/:userId', async (req, res) => {
     const userId = req.params.userId;
+    console.log(`Received PUT request for userId: ${userId} with data:`, req.body);
+
     try {
         const updatedUser = await User.findOneAndUpdate(
             { userId },
@@ -67,7 +69,16 @@ app.put('/api/users/:userId', async (req, res) => {
         );
 
         if (!updatedUser) {
+            console.error('User not found in database');
             return res.status(404).json({ message: 'User not found' });
+        }
+
+        console.log('User updated successfully:', updatedUser);
+
+        // Ensure RabbitMQ channel is initialized
+        if (!channel) {
+            console.error('RabbitMQ channel is not initialized.');
+            return res.status(500).json({ message: 'RabbitMQ channel is not available' });
         }
 
         // Publish event to RabbitMQ
@@ -75,10 +86,13 @@ app.put('/api/users/:userId', async (req, res) => {
             userId,
             updatedFields: req.body,
         };
+        console.log('Publishing event to RabbitMQ:', JSON.stringify(event));
         channel.sendToQueue('user_updates', Buffer.from(JSON.stringify(event)));
+        console.log('Event successfully sent to RabbitMQ');
 
         res.status(200).json(updatedUser);
     } catch (error) {
+        console.error('Error updating user or publishing event:', error.message);
         res.status(500).json({ message: 'Failed to update user', error: error.message });
     }
 });
@@ -87,15 +101,27 @@ app.put('/api/users/:userId', async (req, res) => {
 app.get('/api/users', async (req, res) => {
     try {
         const users = await User.find();
+        console.log('Fetched users:', users);
         res.status(200).json(users);
     } catch (error) {
+        console.error('Error fetching users:', error.message);
         res.status(500).json({ message: 'Failed to fetch users', error: error.message });
     }
 });
 
-// Start the services
-Promise.all([connectRabbitMQ(), connectMongoDB()]).then(() => {
-    app.listen(PORT, () => {
-        console.log(`User Service is running on http://localhost:${PORT}`);
-    });
-});
+// Sequentially connect to services and start the server
+async function startServices() {
+    try {
+        await connectMongoDB();
+        await connectRabbitMQ();
+        app.listen(PORT, () => {
+            console.log(`User Service is running on http://localhost:${PORT}`);
+        });
+    } catch (error) {
+        console.error('Failed to start services:', error.message);
+        process.exit(1);
+    }
+}
+
+// Start the application
+startServices();
