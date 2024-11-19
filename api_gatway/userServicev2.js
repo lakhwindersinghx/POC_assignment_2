@@ -11,14 +11,10 @@ let channel;
 app.use(bodyParser.json());
 
 //define a subdocument
-const addressSchema=new mongoose.Schema({
-    city:{type:String, required:true},
-    province:{type:String, required:true}
-});
 const userSchema = new mongoose.Schema({
-    userId: {type:String, required:true, unique:true},
-    email: {type:String, required:true, unique:true},
-    deliveryAddress:{type:addressSchema, required:true}
+    userId: { type: String, required: true, unique: true },
+    email: { type: String, required: true, unique: true },
+    deliveryAddress: { type: String, required: true }
 });
 const User = mongoose.model('User', userSchema);
 
@@ -37,7 +33,7 @@ async function connectRabbitMQ() {
 // Connect to MongoDB and populate users
 async function connectMongoDB() {
     try {
-        const uri = 'mongodb+srv://singh:1721@cluster0.uuzh3.mongodb.net/myDatabase?retryWrites=true&w=majority';
+        const uri = 'mongodb+srv://singh:1721@cluster0.uuzh3.mongodb.net/UserDatabase?retryWrites=true&w=majority';
         await mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true });
         users = await User.find();  // Fetch all users from the database
         console.log('Connected to MongoDB Atlas and users populated');

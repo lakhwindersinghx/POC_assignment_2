@@ -2,15 +2,15 @@
 
 const express = require('express');
 const userRoutes = require('./routes/userRoutes.js');
-const orderRoutes = require('./routes/orderRoutes');
+const orderRoutes = require('./routes/orderRoutes.js');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware to parse JSON
+// Middleware to parse JSON and handle CORS
 app.use(express.json());
 
-// Use the routes
+// Use the routes for users and orders
 app.use('/api/users', userRoutes);
 app.use('/api/orders', orderRoutes);
 
