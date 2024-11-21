@@ -7,7 +7,7 @@ const orderRoutes = require('./routes/orderRoutes.js');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware to parse JSON and handle CORS
+// Middleware to parse JSON
 app.use(express.json());
 
 // Use the routes for users and orders
