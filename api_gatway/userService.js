@@ -21,7 +21,8 @@ const User = mongoose.model('User', userSchema);
 // Connect to RabbitMQ
 async function connectRabbitMQ() {
     try {
-        const connection = await amqp.connect('amqp://localhost');
+        const connection = await amqp.connect(process.env.RABBITMQ_URL || "amqp://rabbitmq:5672");
+
         channel = await connection.createChannel();
         await channel.assertQueue('user_updates', { durable: true });
         console.log('Connected to RabbitMQ');

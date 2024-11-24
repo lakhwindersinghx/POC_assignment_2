@@ -1,0 +1,56 @@
+version: '3.8'
+services:
+  rabbitmq:
+    image: rabbitmq:management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672" # Expose AMQP port
+      - "15672:15672" # Optional: Management UI
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+
+  api-gateway:
+    build:
+      context: ./api_gatway
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    depends_on:
+      - rabbitmq
+
+  user-service:
+    build:
+      context: ./api_gatway
+      dockerfile: Dockerfile-user
+    ports:
+      - "3001:3001"
+    depends_on:
+      - rabbitmq
+    environment:
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+
+  user-service-v2:
+    build:
+      context: ./api_gatway
+      dockerfile: Dockerfile-user-v2
+    ports:
+      - "3002:3002"
+    depends_on:
+      - rabbitmq
+    environment:
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+
+  order-service:
+    build:
+      context: ./api_gatway
+      dockerfile: Dockerfile-orders
+    ports:
+      - "3003:3003"
+    depends_on:
+      - rabbitmq
+    environment:
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672

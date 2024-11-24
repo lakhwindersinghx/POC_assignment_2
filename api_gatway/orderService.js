@@ -42,7 +42,8 @@ connectMongoDB();
 // Connect to RabbitMQ
 async function connectRabbitMQ() {
     try {
-        const connection = await amqp.connect(process.env.RABBITMQ_URL || "amqp://localhost");
+        const connection = await amqp.connect(process.env.RABBITMQ_URL || "amqp://rabbitmq:5672");
+
         channel = await connection.createChannel();
         await channel.assertQueue("user_updates");
 
