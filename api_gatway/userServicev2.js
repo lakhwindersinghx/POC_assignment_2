@@ -55,6 +55,9 @@ app.post('/api/users', async (req, res) => {
     }
 });
 
+app.get('/', (req, res) => {
+    res.send('User Service v2 is running!');
+});
 
 // Route to update user email or delivery address
 app.put('/api/users/:userId', async (req, res) => {

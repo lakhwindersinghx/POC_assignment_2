@@ -79,6 +79,10 @@ async function connectRabbitMQ() {
     }
 }
 
+app.get('/', (req, res) => {
+    res.send('Order Service is running!');
+});
+
 // Route to update user email or delivery address
 app.put('/api/orders/:orderId', async (req, res) => {
     const orderId = req.params.orderId;

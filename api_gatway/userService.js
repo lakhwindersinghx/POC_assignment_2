@@ -56,6 +56,9 @@ app.post('/api/users', async (req, res) => {
         res.status(500).json({ message: 'Failed to create user', error: error.message });
     }
 });
+app.get('/', (req, res) => {
+    res.send('User Service v1 is running!');
+});
 
 // Route to update user email or delivery address
 app.put('/api/users/:userId', async (req, res) => {
