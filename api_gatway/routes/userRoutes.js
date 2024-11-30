@@ -4,8 +4,8 @@ const fs = require('fs');
 const router = express.Router();
 
 // Assuming user service v1 runs on port 3001 and v2 runs on port 3002
-const USER_SERVICE_V1_URL = 'http://localhost:3001/api/users';
-const USER_SERVICE_V2_URL = 'http://localhost:3002/api/users';
+const USER_SERVICE_V1_URL = 'http://user-service:3001/api/users';
+const USER_SERVICE_V2_URL = 'http://user-service-v2:3002/api/users';
 
 // Load the configuration file to get the percentage for routing requests to v1 or v2
 const configPath = 'config.json';

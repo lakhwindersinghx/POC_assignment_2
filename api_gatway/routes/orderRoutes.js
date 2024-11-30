@@ -3,7 +3,7 @@ const axios = require('axios');
 const router = express.Router();
 
 // Assuming your order service runs on port 3003, as per your order service code
-const ORDER_SERVICE_URL = 'http://localhost:3003/api/orders';
+const ORDER_SERVICE_URL = 'http://order-service:3003/api/orders';
 
 // Route to create a new order
 router.post('/', async (req, res) => {
