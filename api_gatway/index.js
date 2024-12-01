@@ -17,6 +17,7 @@ app.use('/api/orders', orderRoutes);
 // Start the server
 app.listen(PORT, () => {
     console.log(`API Gateway is running on http://localhost:${PORT}`);
+    console.log(`Testing CI/CD`);
 });
 
 app.get('/', (req, res) => {
