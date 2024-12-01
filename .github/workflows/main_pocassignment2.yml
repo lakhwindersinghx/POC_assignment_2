@@ -24,6 +24,9 @@ jobs:
     - name: Install dependencies
       run: npm install
 
+    - name: Make Jest executable
+      run: chmod +x ./node_modules/.bin/jest  # Ensure jest is executable
+
     - name: Run tests
       run: npm test
 
