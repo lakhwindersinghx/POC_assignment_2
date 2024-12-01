@@ -3,5 +3,11 @@
     "amqplib": "^0.10.5",
     "mongodb": "^6.10.0",
     "mongoose": "^8.8.0"
+  },
+  "scripts": {
+    "test": "jest"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
   }
 }
